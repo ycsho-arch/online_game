@@ -51,6 +51,20 @@
             transform: scale(1.1);
         }
         
+        .music-tooltip {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            z-index: 1001;
+            max-width: 150px;
+            display: none;
+        }
+        
         /* Login/Registration Styles */
         .auth-container {
             display: flex;
@@ -274,13 +288,15 @@
 </head>
 <body>
 
-<!-- Background Music -->
-<audio id="background-music" loop style="display: none;">
+<!-- Background Music with multiple sources for better compatibility -->
+<audio id="background-music" loop preload="auto" style="display: none;">
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
 </audio>
 
 <!-- Music Control Button -->
-<button class="music-control" id="music-btn" onclick="toggleMusic()" title="音樂開/關">🔊</button>
+<button class="music-control" id="music-btn" onclick="toggleMusic()" title="🔊 點擊開啟/關閉音樂">🔊</button>
+<div class="music-tooltip" id="music-tooltip"></div>
 
 <div class="game-container">
     <h1>🐱 多啦A夢 HCF & LCM 大冒險 👑</h1>
@@ -368,36 +384,69 @@
 // ============ Music System ============
 let isMusicPlaying = false;
 const backgroundMusic = document.getElementById('background-music');
+const musicBtn = document.getElementById('music-btn');
+const musicTooltip = document.getElementById('music-tooltip');
+
+function showTooltip(message, duration = 2000) {
+    musicTooltip.textContent = message;
+    musicTooltip.style.display = 'block';
+    setTimeout(() => {
+        musicTooltip.style.display = 'none';
+    }, duration);
+}
 
 function toggleMusic() {
-    const musicBtn = document.getElementById('music-btn');
-    
     if (isMusicPlaying) {
+        // Pause music
         backgroundMusic.pause();
         isMusicPlaying = false;
         musicBtn.textContent = '🔇';
         musicBtn.title = '音樂已關閉';
         localStorage.setItem('musicEnabled', 'false');
+        showTooltip('🔇 音樂已關閉');
     } else {
-        // Set volume to reasonable level
+        // Play music
         backgroundMusic.volume = 0.3;
-        backgroundMusic.play().catch(err => {
-            console.log('音樂播放失敗，可能因為瀏覽器限制:', err);
-        });
-        isMusicPlaying = true;
-        musicBtn.textContent = '🔊';
-        musicBtn.title = '音樂已開啟';
-        localStorage.setItem('musicEnabled', 'true');
+        
+        const playPromise = backgroundMusic.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                isMusicPlaying = true;
+                musicBtn.textContent = '🔊';
+                musicBtn.title = '音樂已開啟';
+                localStorage.setItem('musicEnabled', 'true');
+                showTooltip('🔊 音樂已開啟');
+            }).catch(err => {
+                console.error('音樂播放失敗:', err);
+                showTooltip('❌ 無法播放音樂<br>請檢查音量設定', 3000);
+            });
+        } else {
+            // Old browser
+            isMusicPlaying = true;
+            musicBtn.textContent = '🔊';
+            musicBtn.title = '音樂已開啟';
+            localStorage.setItem('musicEnabled', 'true');
+            showTooltip('🔊 音樂已開啟');
+        }
     }
 }
 
 function initializeMusic() {
-    // Check if music was previously enabled
+    // Add click event to document to enable autoplay after user interaction
+    document.addEventListener('click', function enableAudioContext() {
+        if (!isMusicPlaying && localStorage.getItem('musicEnabled') === 'true') {
+            backgroundMusic.volume = 0.3;
+            backgroundMusic.play().catch(err => console.log('自動播放被阻止'));
+            document.removeEventListener('click', enableAudioContext);
+        }
+    }, { once: true });
+    
+    // Check if music was previously enabled and user is in game
     const musicEnabled = localStorage.getItem('musicEnabled');
     if (musicEnabled === 'true') {
-        setTimeout(() => {
-            toggleMusic();
-        }, 500);
+        // Don't auto-play, wait for user interaction
+        showTooltip('💡 點擊🔊按鈕播放音樂', 3000);
     }
 }
 
@@ -559,10 +608,7 @@ function startGame() {
     document.getElementById('auth-area').classList.add('hidden');
     document.getElementById('game-area').classList.add('active');
     document.getElementById('current-username').innerText = currentUser.username;
-    // Start music when game starts
-    if (!isMusicPlaying && localStorage.getItem('musicEnabled') === 'true') {
-        toggleMusic();
-    }
+    initializeMusic();
     loadQuestion();
 }
 
@@ -688,7 +734,6 @@ function showResults() {
 // Initialize
 loadUsers();
 checkUserSession();
-initializeMusic();
 </script>
 
 </body>
