@@ -476,6 +476,12 @@ function openVideoModal() {
     const videoModal = document.getElementById('video-modal');
     videoModal.classList.add('active');
     const videoPlayer = document.getElementById('video-player');
+    
+    // Auto-close modal when video ends
+    videoPlayer.onended = function() {
+        closeVideoModal();
+    };
+    
     videoPlayer.play();
 }
 
@@ -485,6 +491,7 @@ function closeVideoModal() {
     const videoPlayer = document.getElementById('video-player');
     videoPlayer.pause();
     videoPlayer.currentTime = 0;
+    videoPlayer.onended = null; // Remove the event listener
 }
 
 // Close modal when clicking outside the content
