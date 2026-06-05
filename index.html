@@ -121,6 +121,7 @@
             aspect-ratio: 16 / 9;
             border-radius: 10px;
             border: none;
+            background: #000;
         }
         
         .video-title {
@@ -140,6 +141,11 @@
                 transform: translateY(0);
                 opacity: 1;
             }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
         /* Login/Registration Styles */
@@ -357,18 +363,13 @@
             text-align: center;
         }
         .result-screen h2 { color: #fbc02d; font-size: 2rem; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
 
-<!-- Background Music with multiple sources for better compatibility -->
+<!-- Background Music -->
 <audio id="background-music" loop preload="auto" style="display: none;">
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
 </audio>
 
 <!-- Music Control Button -->
@@ -380,11 +381,10 @@
     <div class="video-modal-content">
         <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
         <div class="video-title">🎬 大雄為你加油！</div>
-        <iframe 
-            class="video-frame"
-            src="https://drive.google.com/file/d/1F16yQZiz5bR1BePOxss2jybF7C0ikPzu/preview" 
-            allow="autoplay">
-        </iframe>
+        <video class="video-frame" id="video-player" controls autoplay>
+            <source src="https://drive.google.com/uc?export=download&id=1F16yQZiz5bR1BePOxss2jybF7C0ikPzu" type="video/mp4">
+            您的瀏覽器不支援影片播放。
+        </video>
     </div>
 </div>
 
@@ -475,11 +475,16 @@
 function openVideoModal() {
     const videoModal = document.getElementById('video-modal');
     videoModal.classList.add('active');
+    const videoPlayer = document.getElementById('video-player');
+    videoPlayer.play();
 }
 
 function closeVideoModal() {
     const videoModal = document.getElementById('video-modal');
     videoModal.classList.remove('active');
+    const videoPlayer = document.getElementById('video-player');
+    videoPlayer.pause();
+    videoPlayer.currentTime = 0;
 }
 
 // Close modal when clicking outside the content
@@ -505,7 +510,6 @@ function showTooltip(message, duration = 2000) {
 
 function toggleMusic() {
     if (isMusicPlaying) {
-        // Pause music
         backgroundMusic.pause();
         isMusicPlaying = false;
         musicBtn.textContent = '🔇';
@@ -513,9 +517,7 @@ function toggleMusic() {
         localStorage.setItem('musicEnabled', 'false');
         showTooltip('🔇 音樂已關閉');
     } else {
-        // Play music
         backgroundMusic.volume = 0.3;
-        
         const playPromise = backgroundMusic.play();
         
         if (playPromise !== undefined) {
@@ -527,33 +529,15 @@ function toggleMusic() {
                 showTooltip('🔊 音樂已開啟');
             }).catch(err => {
                 console.error('音樂播放失敗:', err);
-                showTooltip('❌ 無法播放音樂<br>請檢查音量設定', 3000);
+                showTooltip('❌ 無法播放音樂', 3000);
             });
-        } else {
-            // Old browser
-            isMusicPlaying = true;
-            musicBtn.textContent = '🔊';
-            musicBtn.title = '音樂已開啟';
-            localStorage.setItem('musicEnabled', 'true');
-            showTooltip('🔊 音樂已開啟');
         }
     }
 }
 
 function initializeMusic() {
-    // Add click event to document to enable autoplay after user interaction
-    document.addEventListener('click', function enableAudioContext() {
-        if (!isMusicPlaying && localStorage.getItem('musicEnabled') === 'true') {
-            backgroundMusic.volume = 0.3;
-            backgroundMusic.play().catch(err => console.log('自動播放被阻止'));
-            document.removeEventListener('click', enableAudioContext);
-        }
-    }, { once: true });
-    
-    // Check if music was previously enabled and user is in game
     const musicEnabled = localStorage.getItem('musicEnabled');
     if (musicEnabled === 'true') {
-        // Don't auto-play, wait for user interaction
         showTooltip('💡 點擊🔊按鈕播放音樂', 3000);
     }
 }
@@ -562,7 +546,6 @@ function initializeMusic() {
 let users = {};
 let currentUser = null;
 
-// Load users from localStorage
 function loadUsers() {
     const savedUsers = localStorage.getItem('gameUsers');
     if (savedUsers) {
@@ -570,12 +553,10 @@ function loadUsers() {
     }
 }
 
-// Save users to localStorage
 function saveUsers() {
     localStorage.setItem('gameUsers', JSON.stringify(users));
 }
 
-// Check if user is already logged in
 function checkUserSession() {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
@@ -592,14 +573,12 @@ function toggleAuthForm() {
     const authTitle = document.getElementById('auth-title');
     
     if (loginForm.style.display !== 'none') {
-        // Show register form
         loginForm.style.display = 'none';
         registerForm.style.display = 'flex';
         loginToggle.style.display = 'none';
         registerToggle.style.display = 'block';
         authTitle.innerText = '創建新帳戶';
     } else {
-        // Show login form
         loginForm.style.display = 'flex';
         registerForm.style.display = 'none';
         loginToggle.style.display = 'block';
@@ -694,7 +673,6 @@ function handleRegister() {
     saveUsers();
     showSuccess(`✅ 註冊成功！帳戶 "${username}" 已創建，請登錄！`);
     
-    // Clear form
     document.getElementById('register-username').value = '';
     document.getElementById('register-password').value = '';
     document.getElementById('register-confirm-password').value = '';
@@ -721,7 +699,6 @@ function startGame() {
 }
 
 // ============ Game System ============
-// 題目數據
 const questions = [
     { stage: "第一階段：大雄的房間", q: "多啦A夢有 12 個紅豆銅鑼燒和 18 個栗子銅鑼燒。他想把這兩款銅鑼燒平均分給幾位朋友，每人分得的紅豆和栗子銅鑼燒數目都要相同。請問最多可以分給多少位朋友（不包括多啦A夢本身）？", options: ["4 位", "5 位", "6 位", "7 位"], ans: 2, hint: "12 和 18 的最大公因數是 6"},
     { stage: "第一階段：大雄的房間", q: "大雄、靜香和小夫在空地玩竹蜻蜓。大雄的竹蜻蜓每 4 分鐘需要降落充電，靜香的每 6 分鐘需要降落充電。如果他們同時開始，最少要多少分鐘後，他們的竹蜻蜓會同時需要充電？", options: ["10 分鐘", "12 分鐘", "14 分鐘", "24 分鐘"], ans: 1, hint: "4 和 6 的最小公倍數是 12"},
@@ -734,7 +711,7 @@ const questions = [
     { stage: "第二階段：學校與空地", q: "四年級班主任張老師想用一些長 8 厘米、寬 6 厘米的長方形多啦A夢貼紙，拼出一個正方形。請問這個正方形的邊長最短應該是多少厘米？", options: ["24 厘米", "48 厘米", "72 厘米", "96 厘米"], ans: 0, hint: "8 和 6 的最小公倍數是 24"},
     { stage: "第二階段：學校與空地", q: "大雄有一袋鉛筆。無論是每 5 支分給一組，還是每 7 支分給一組，都剛好分完。這袋鉛筆的數量在 60 至 80 支之間。請問這袋鉛筆有多少支？", options: ["60 支", "65 支", "70 支", "75 支"], ans: 2, hint: "5 和 7 的最小公倍數是 35，35 × 2 = 70"},
     { stage: "第三階段：後山與恐龍世界", q: "多啦美帶了 45 顆士多啤梨糖和 60 顆朱古力糖到後山野餐。她想平均分給同行的小朋友（包括自己），每人分得的士多啤梨糖和朱古力糖數目都要相同。請問最多可以分給多少人？", options: ["10 人", "12 人", "15 人", "20 人"], ans: 2, hint: "45 和 60 的最大公因數是 15"},
-    { stage: "第三階段：後山與恐龍世界", q: "神成先生想在長 32 米、寬 24 米的長方形花園四周種植盆栽。四個角落必須種植，且每兩盆盆栽之間的距離要相同。請問最少需要多少盆盆栽？", options: ["28 盆", "32 盆", "40 盆", "56 盆"], ans: 3, hint: "邊長最長間距是 32 和 24 的最大公因數 8。周長是 (32+24)×2=112，所以需要 112÷8=14 個間距，14+14=28... 實際上是 56 盆"},
+    { stage: "第三階段：後山與恐龍世界", q: "神成先生想在長 32 米、寬 24 米的長方形花園四周種植盆栽。四個角落必須種植，且每兩盆盆栽之間的距離要相同。請問最少需要多少盆盆栽？", options: ["28 盆", "32 盆", "40 盆", "56 盆"], ans: 3, hint: "邊長最長間距是 32 和 24 的最大公因數 8。周長 112 米，每 8 米種一盆 = 56 盆"},
     { stage: "第三階段：後山與恐龍世界", q: "在恐龍世界裏，縮小電筒每 18 分鐘會發出一次嗶嗶聲，翻譯蒟蒻每 30 分鐘會發出一次嗶嗶聲。如果兩個道具同時發出嗶嗶聲，最少要多少分鐘後，它們會再次同時發出嗶嗶聲？", options: ["60 分鐘", "80 分鐘", "90 分鐘", "120 分鐘"], ans: 2, hint: "18 和 30 的最小公倍數是 90"},
     { stage: "第三階段：後山與恐龍世界", q: "胖虎每 14 天去空地打一次棒球，小夫每 21 天去一次。如果他們今天一起在空地練習，下一次一起練習會是在多少天以後？", options: ["28 天", "35 天", "42 天", "56 天"], ans: 2, hint: "14 和 21 的最小公倍數是 42"},
     { stage: "第三階段：後山與恐龍世界", q: "多啦A夢將法寶分類，第一類有 48 件，第二類有 72 件。他想把這些法寶裝進一些大箱子裏，每個箱子裝的法寶數量要相同且最多。請問每個箱子最多可以裝多少件法寶？", options: ["12 件", "16 件", "24 件", "36 件"], ans: 2, hint: "48 和 72 的最大公因數是 24"}
@@ -744,7 +721,6 @@ let currentIdx = 0;
 let stars = 0;
 let hasAnswered = false;
 
-// 網頁版語音合成（代替音效檔，方便直接開啟）
 const synth = window.speechSynthesis;
 function playSound(text) {
     if ('speechSynthesis' in window) {
@@ -791,7 +767,6 @@ function checkAnswer(selectedIdx) {
     const feedback = document.getElementById('feedback-msg');
     const buttons = document.querySelectorAll('.opt-btn');
     
-    // 禁用所有按鈕
     buttons.forEach(btn => btn.style.cursor = 'default');
 
     if (selectedIdx === qData.ans) {
@@ -805,10 +780,9 @@ function checkAnswer(selectedIdx) {
         feedback.innerHTML = `<span class="wrong">🔊 咚波～ 答錯了！<br><small style="color:#666">提示：${qData.hint}</small></span>`;
         buttons[selectedIdx].style.background = '#ffcdd2';
         buttons[selectedIdx].style.borderColor = '#f44336';
-        buttons[qData.ans].style.background = '#c8e6c9'; // 顯示正解
+        buttons[qData.ans].style.background = '#c8e6c9';
         playSound("咚波！大雄跌倒了");
         
-        // Open video modal after a short delay
         setTimeout(() => {
             openVideoModal();
         }, 1000);
@@ -844,7 +818,6 @@ function showResults() {
     }
 }
 
-// Initialize
 loadUsers();
 checkUserSession();
 </script>
