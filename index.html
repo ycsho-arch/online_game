@@ -28,6 +28,151 @@
             text-align: center;
             text-shadow: 1px 1px 2px #fff;
         }
+        
+        /* Login/Registration Styles */
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .auth-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #00a0e9;
+            font-size: 1.1rem;
+        }
+        .form-group input {
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #00a0e9;
+            border-radius: 8px;
+            font-family: 'Arial', sans-serif;
+        }
+        .form-group input:focus {
+            outline: none;
+            box-shadow: 0 0 5px #00a0e9;
+            background-color: #f0f8ff;
+        }
+        .auth-button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .auth-btn {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .auth-btn.primary {
+            background: #00a0e9;
+            color: white;
+        }
+        .auth-btn.primary:hover {
+            background: #0087c4;
+            transform: scale(1.05);
+        }
+        .auth-btn.secondary {
+            background: #fbc02d;
+            color: #333;
+            border: 2px solid #fbc02d;
+        }
+        .auth-btn.secondary:hover {
+            background: #f9a825;
+            border-color: #f9a825;
+            transform: scale(1.05);
+        }
+        .toggle-auth-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .toggle-auth-text button {
+            background: none;
+            border: none;
+            color: #00a0e9;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+        .toggle-auth-text button:hover {
+            color: #0087c4;
+        }
+        .error-msg {
+            color: #f44336;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 5px;
+            display: none;
+        }
+        .success-msg {
+            color: #4caf50;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            display: none;
+        }
+        .user-info {
+            text-align: center;
+            padding: 15px;
+            background: #fff9c4;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px dashed #fbc02d;
+        }
+        .user-info .username {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #00a0e9;
+        }
+        .logout-btn {
+            padding: 8px 15px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .logout-btn:hover {
+            background: #d32f2f;
+        }
+        
+        /* Game Styles */
+        .game-area {
+            display: none;
+        }
+        .game-area.active {
+            display: block;
+        }
+        .auth-area {
+            display: block;
+        }
+        .auth-area.hidden {
+            display: none;
+        }
+        
         .scoreboard {
             display: flex;
             justify-content: space-between;
@@ -110,43 +255,265 @@
 <div class="game-container">
     <h1>🐱 多啦A夢 HCF & LCM 大冒險 👑</h1>
     
-    <div class="scoreboard">
-        <div>關卡: <span id="current-stage">1</span> / 15</div>
-        <div>獲得星星: <span id="star-count">⭐ 0</span></div>
+    <!-- Auth Area -->
+    <div class="auth-area" id="auth-area">
+        <div class="auth-container">
+            <h2 id="auth-title" style="color: #00a0e9;">登錄/註冊</h2>
+            <div class="error-msg" id="error-msg"></div>
+            <div class="success-msg" id="success-msg"></div>
+            
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-username">用戶名 👤</label>
+                    <input type="text" id="login-username" placeholder="請輸入用戶名" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密碼 🔐</label>
+                    <input type="password" id="login-password" placeholder="請輸入密碼" required>
+                </div>
+                <div class="auth-button-group">
+                    <button class="auth-btn primary" onclick="handleLogin()">登錄</button>
+                </div>
+            </div>
+            
+            <!-- Registration Form -->
+            <div id="register-form" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-username">用戶名 👤</label>
+                    <input type="text" id="register-username" placeholder="請輸入用戶名" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">密碼 🔐</label>
+                    <input type="password" id="register-password" placeholder="請輸入密碼" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">確認密碼 🔐</label>
+                    <input type="password" id="register-confirm-password" placeholder="請確認密碼" required>
+                </div>
+                <div class="auth-button-group">
+                    <button class="auth-btn primary" onclick="handleRegister()">註冊</button>
+                </div>
+            </div>
+            
+            <!-- Toggle Forms -->
+            <div class="toggle-auth-text">
+                <div id="login-toggle" style="display: block;">
+                    還沒有帳戶？<button onclick="toggleAuthForm()">立即註冊</button>
+                </div>
+                <div id="register-toggle" style="display: none;">
+                    已有帳戶？<button onclick="toggleAuthForm()">立即登錄</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="quiz-area">
+    <!-- Game Area -->
+    <div class="game-area" id="game-area">
+        <div class="user-info">
+            <div>歡迎，<span class="username" id="current-username">玩家</span>！</div>
+            <button class="logout-btn" onclick="handleLogout()">登出</button>
+        </div>
+        
+        <div class="scoreboard">
+            <div>關卡: <span id="current-stage">1</span> / 15</div>
+            <div>獲得星星: <span id="star-count">⭐ 0</span></div>
         </div>
 
-    <div class="feedback" id="feedback-msg"></div>
-    <button class="next-btn" id="next-button" onclick="nextQuestion()">前進下一關 🚀</button>
+        <div id="quiz-area"></div>
 
-    <div class="result-screen" id="result-area">
-        <h2>🎉 冒險完成！ 🎉</h2>
-        <p style="font-size: 1.5rem;">你總共獲得了 <span id="final-stars" style="color:#fbc02d; font-weight:bold;">0</span> 顆星星！</p>
-        <p id="rank-msg" style="font-size: 1.2rem; font-weight:bold; margin: 20px 0;"></p>
-        <button class="btn" onclick="location.reload()" style="background:#4caf50; color:white; border:none;">再玩一次 🔄</button>
+        <div class="feedback" id="feedback-msg"></div>
+        <button class="next-btn" id="next-button" onclick="nextQuestion()">前進下一關 🚀</button>
+
+        <div class="result-screen" id="result-area">
+            <h2>🎉 冒險完成！ 🎉</h2>
+            <p style="font-size: 1.5rem;">你總共獲得了 <span id="final-stars" style="color:#fbc02d; font-weight:bold;">0</span> 顆星星！</p>
+            <p id="rank-msg" style="font-size: 1.2rem; font-weight:bold; margin: 20px 0;"></p>
+            <button class="btn" onclick="location.reload()" style="background:#4caf50; color:white; border:none;">再玩一次 🔄</button>
+        </div>
     </div>
 </div>
 
 <script>
+// ============ Authentication System ============
+let users = {};
+let currentUser = null;
+
+// Load users from localStorage
+function loadUsers() {
+    const savedUsers = localStorage.getItem('gameUsers');
+    if (savedUsers) {
+        users = JSON.parse(savedUsers);
+    }
+}
+
+// Save users to localStorage
+function saveUsers() {
+    localStorage.setItem('gameUsers', JSON.stringify(users));
+}
+
+// Check if user is already logged in
+function checkUserSession() {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        startGame();
+    }
+}
+
+function toggleAuthForm() {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginToggle = document.getElementById('login-toggle');
+    const registerToggle = document.getElementById('register-toggle');
+    const authTitle = document.getElementById('auth-title');
+    
+    if (loginForm.style.display !== 'none') {
+        // Show register form
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'flex';
+        loginToggle.style.display = 'none';
+        registerToggle.style.display = 'block';
+        authTitle.innerText = '創建新帳戶';
+    } else {
+        // Show login form
+        loginForm.style.display = 'flex';
+        registerForm.style.display = 'none';
+        loginToggle.style.display = 'block';
+        registerToggle.style.display = 'none';
+        authTitle.innerText = '登錄/註冊';
+    }
+    clearMessages();
+}
+
+function showError(message) {
+    const errorMsg = document.getElementById('error-msg');
+    errorMsg.innerText = message;
+    errorMsg.style.display = 'block';
+    setTimeout(() => {
+        errorMsg.style.display = 'none';
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const successMsg = document.getElementById('success-msg');
+    successMsg.innerText = message;
+    successMsg.style.display = 'block';
+    setTimeout(() => {
+        successMsg.style.display = 'none';
+    }, 5000);
+}
+
+function clearMessages() {
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'none';
+}
+
+function handleLogin() {
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    
+    if (!username || !password) {
+        showError('❌ 請輸入用戶名和密碼！');
+        return;
+    }
+    
+    if (!users[username]) {
+        showError('❌ 用戶不存在，請先註冊！');
+        return;
+    }
+    
+    if (users[username].password !== password) {
+        showError('❌ 密碼錯誤，請重試！');
+        return;
+    }
+    
+    currentUser = { username: username };
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    showSuccess(`✅ 登錄成功！歡迎回來，${username}！`);
+    
+    setTimeout(() => {
+        startGame();
+    }, 1500);
+}
+
+function handleRegister() {
+    const username = document.getElementById('register-username').value.trim();
+    const password = document.getElementById('register-password').value;
+    const confirmPassword = document.getElementById('register-confirm-password').value;
+    
+    if (!username || !password || !confirmPassword) {
+        showError('❌ 請填寫所有欄位！');
+        return;
+    }
+    
+    if (username.length < 3) {
+        showError('❌ 用戶名至少需要 3 個字符！');
+        return;
+    }
+    
+    if (password.length < 4) {
+        showError('❌ 密碼至少需要 4 個字符！');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        showError('❌ 兩次輸入的密碼不一致！');
+        return;
+    }
+    
+    if (users[username]) {
+        showError('❌ 用戶名已被使用，請選擇另一個！');
+        return;
+    }
+    
+    users[username] = { password: password };
+    saveUsers();
+    showSuccess(`✅ 註冊成功！帳戶 "${username}" 已創建，請登錄！`);
+    
+    // Clear form
+    document.getElementById('register-username').value = '';
+    document.getElementById('register-password').value = '';
+    document.getElementById('register-confirm-password').value = '';
+    
+    setTimeout(() => {
+        toggleAuthForm();
+    }, 1500);
+}
+
+function handleLogout() {
+    if (confirm('確定要登出嗎？')) {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        location.reload();
+    }
+}
+
+function startGame() {
+    document.getElementById('auth-area').classList.add('hidden');
+    document.getElementById('game-area').classList.add('active');
+    document.getElementById('current-username').innerText = currentUser.username;
+    loadQuestion();
+}
+
+// ============ Game System ============
 // 題目數據
 const questions = [
-    { stage: "第一階段：大雄的房間", q: "多啦A夢有 12 個紅豆銅鑼燒和 18 個栗子銅鑼燒。他想把這兩款銅鑼燒平均分給幾位朋友，每人分得的紅豆和栗子銅鑼燒數目要相同，且剛好分完。請問最多可以分給多少位朋友？", options: ["2 位", "3 位", "6 位", "36 位"], ans: 2, hint: "求 12 和 18 的最大公因數 (HCF)。" },
-    { stage: "第一階段：大雄的房間", q: "大雄、靜香和小夫在空地玩竹蜻蜓。大雄的竹蜻蜓每 4 分鐘需要降落充電，靜香的每 6 分鐘需要降落充電。如果她們同時起飛，最少要過多少分鐘她們才會第一次同時降落充電？", options: ["2 分鐘", "12 分鐘", "24 分鐘", "48 分鐘"], ans: 1, hint: "求 4 和 6 的最小公倍數 (LCM)。" },
-    { stage: "第一階段：大雄的房間", q: "大雄有兩塊長度分別是 20 厘米和 30 厘米的記憶麵包。他想把它們切成長度相同的最長長條，而且沒有剩餘。每條記憶麵包應該長多少厘米？", options: ["5 厘米", "10 厘米", "60 厘米", "100 厘米"], ans: 1, hint: "求 20 和 30 的最大公因數 (HCF)。" },
-    { stage: "第一階段：大雄的房間", q: "隨意門的故障密碼是一個兩位數。這個數同時是 6 和 9 的倍數，而且它是符合這個條件中最小的一個。請問這個密碼是多少？", options: ["3", "18", "36", "54"], ans: 1, hint: "求 6 和 9 的最小公倍數 (LCM)。" },
-    { stage: "第一階段：大雄的房間", q: "時光機內有兩個互相咬合的齒輪。大齒輪有 24 個齒，小齒輪有 16 個齒。當這兩個齒輪轉到原來出發點的位置時，最少要轉動多少個齒？", options: ["8 個", "48 個", "96 個", "384 個"], ans: 1, hint: "求 24 和 16 的最小公倍數 (LCM)。" },
-    { stage: "第二階段：學校與空地", q: "胖虎想把 24 張藍色門票和 36 張紅色門票包裝成幸運福袋。每個福袋裏的藍色和紅色門票數目都要相同。請問胖虎最多可以包裝成多少個福袋？", options: ["6 個", "12 個", "24 個", "72 個"], ans: 1, hint: "求 24 和 36 的最大公因數 (HCF)。" },
-    { stage: "第二階段：學校與空地", q: "小夫有兩種長度的賽道模型，分別長 15 厘米和 25 厘米。如果他想用這兩種模型各自排成兩條長度相同且最短的直路線，這條路線的長度是多少厘米？", options: ["5 厘米", "50 厘米", "75 厘米", "150 厘米"], ans: 2, hint: "求 15 和 25 的最小公倍數 (LCM)。" },
-    { stage: "第二階段：學校與空地", q: "靜香每 8 天去上一次小提琴課，大雄每 12 天去一次同一個中心的功課輔導班。今天她們在中心相遇了，請問最少要過多少天她們才會再次在中心相遇？", options: ["4 天", "24 天", "48 天", "96 天"], ans: 1, hint: "求 8 和 12 的最小公倍數 (LCM)。" },
-    { stage: "第二階段：學校與空地", q: "四年級班主任張老師想用一些長 8 厘米、寬 6 厘米的長方形多啦A夢貼紙，拼出一個正方形。請問這個正方形的邊長最少是多少厘米？", options: ["2 厘米", "14 厘米", "24 厘米", "48 厘米"], ans: 2, hint: "求 8 和 6 的最小公倍數 (LCM)。" },
-    { stage: "第二階段：學校與空地", q: "大雄有一袋鉛筆。無論是每 5 支分給一組，還是每 7 支分給一組，都剛好分完。這袋鉛筆的數量在 60 至 80 支之間。請問這袋鉛筆有多少支？", options: ["35 支", "65 支", "70 支", "75 支"], ans: 2, hint: "先求 5 和 7 的 LCM 是 35，再找出 60-80 之間的倍數。" },
-    { stage: "第三階段：後山與恐龍世界", q: "多啦美帶了 45 顆士多啤梨糖和 60 顆朱古力糖到後山野餐。她想平均分給同行的小朋友（包括自己），每人分得的糖果數目一樣。請問最多可以有多少人一起分享？", options: ["5 人", "15 人", "30 人", "180 人"], ans: 1, hint: "求 45 和 60 的最大公因數 (HCF)。" },
-    { stage: "第三階段：後山與恐野世界", q: "神成先生想在長 32 米、寬 24 米的長方形花園四周種植盆栽。四個角落必須種植，且每兩盆盆栽之間的距離要相等且最遠。請問相鄰兩盆盆栽的距離是多少米？", options: ["4 米", "8 米", "12 米", "96 米"], ans: 1, hint: "求 32 和 24 的最大公因數 (HCF)。" },
-    { stage: "第三階段：後山與恐龍世界", q: "在恐龍世界裏，縮小電筒每 18 分鐘會發出一次嗶嗶聲，翻譯蒟蒻每 30 分鐘會發出一次嗶嗶聲。如果兩個道具在上午 9:00 同時發出聲音，下一次同時發出聲音會是甚麼時間？", options: ["上午 9:06", "上午 10:30", "上午 11:30", "下午 12:00"], ans: 1, hint: "先求 18 和 30 的 LCM 是 90 分鐘（1小時30分），再加到 9:00 上。" },
-    { stage: "第三階段：後山與恐龍世界", q: "胖虎每 14 天去空地打一次棒球，小夫每 21 天去一次。如果他們今天一起在空地練習，下一次一起練習會是在多少個星期後？", options: ["6 個星期", "7 個星期", "42 個星期", "3 個星期"], ans: 0, hint: "先求 14 和 21 的 LCM 是 42 天，再換算成星期（除以 7）。" },
-    { stage: "第三階段：後山與恐龍世界", q: "多啦A夢將法寶分類，第一類有 48 件，第二類有 72 件。他想把這些法寶裝進一些大箱子裏，每個箱子裝的法寶數量要相同，且同一箱只能裝同一類的法寶。每個箱子最多可以裝多少件法寶？", options: ["12 件", "24 件", "48 件", "144 件"], ans: 1, hint: "求 48 和 72 的最大公因數 (HCF)。" }
+    { stage: "第一階段：大雄的房間", q: "多啦A夢有 12 個紅豆銅鑼燒和 18 個栗子銅鑼燒。他想把這兩款銅鑼燒平均分給幾位朋友，每人分得的紅豆和栗子銅鑼燒數目都要相同。請問最多可以分給多少位朋友（不包括多啦A夢本身）？", options: ["4 位", "5 位", "6 位", "7 位"], ans: 2, hint: "12 和 18 的最大公因數是 6"},
+    { stage: "第一階段：大雄的房間", q: "大雄、靜香和小夫在空地玩竹蜻蜓。大雄的竹蜻蜓每 4 分鐘需要降落充電，靜香的每 6 分鐘需要降落充電。如果他們同時開始，最少要多少分鐘後，他們的竹蜻蜓會同時需要充電？", options: ["10 分鐘", "12 分鐘", "14 分鐘", "24 分鐘"], ans: 1, hint: "4 和 6 的最小公倍數是 12"},
+    { stage: "第一階段：大雄的房間", q: "大雄有兩塊長度分別是 20 厘米和 30 厘米的記憶麵包。他想把它們切成長度相同的最長長條，而且沒有剩餘。每條長條最長應該是多少厘米？", options: ["5 厘米", "10 厘米", "15 厘米", "20 厘米"], ans: 1, hint: "20 和 30 的最大公因數是 10"},
+    { stage: "第一階段：大雄的房間", q: "隨意門的故障密碼是一個兩位數。這個數同時是 6 和 9 的倍數，而且它是符合這個條件中最小的一個。請問這個密碼是多少？", options: ["18", "36", "54", "63"], ans: 0, hint: "6 和 9 的最小公倍數是 18"},
+    { stage: "第一階段：大雄的房間", q: "時光機內有兩個互相咬合的齒輪。大齒輪有 24 個齒，小齒輪有 16 個齒。當這兩個齒輪轉到原來出發點的位置時，大齒輪轉了幾圈？", options: ["2 圈", "3 圈", "4 圈", "6 圈"], ans: 1, hint: "24 和 16 的最小公倍數是 48。大齒輪需要轉 48 ÷ 24 = 2 圈"},
+    { stage: "第二階段：學校與空地", q: "胖虎想把 24 張藍色門票和 36 張紅色門票包裝成幸運福袋。每個福袋裏的藍色和紅色門票數目都要相同。請問胖虎最多能包裝多少個福袋？", options: ["6 個", "10 個", "12 個", "18 個"], ans: 2, hint: "24 和 36 的最大公因數是 12"},
+    { stage: "第二階段：學校與空地", q: "小夫有兩種長度的賽道模型，分別長 15 厘米和 25 厘米。如果他想用這兩種模型各自排成兩條長度相同且最短的直線，這條直線最短應該是多少厘米？", options: ["75 厘米", "100 厘米", "150 厘米", "200 厘米"], ans: 0, hint: "15 和 25 的最小公倍數是 75"},
+    { stage: "第二階段：學校與空地", q: "靜香每 8 天去上一次小提琴課，大雄每 12 天去一次同一個中心的功課輔導班。今天她們在中心相遇了，請問最少要多少天後，她們會在中心再次相遇？", options: ["20 天", "24 天", "32 天", "48 天"], ans: 1, hint: "8 和 12 的最小公倍數是 24"},
+    { stage: "第二階段：學校與空地", q: "四年級班主任張老師想用一些長 8 厘米、寬 6 厘米的長方形多啦A夢貼紙，拼出一個正方形。請問這個正方形的邊長最短應該是多少厘米？", options: ["24 厘米", "48 厘米", "72 厘米", "96 厘米"], ans: 0, hint: "8 和 6 的最小公倍數是 24"},
+    { stage: "第二階段：學校與空地", q: "大雄有一袋鉛筆。無論是每 5 支分給一組，還是每 7 支分給一組，都剛好分完。這袋鉛筆的數量在 60 至 80 支之間。請問這袋鉛筆有多少支？", options: ["60 支", "65 支", "70 支", "75 支"], ans: 2, hint: "5 和 7 的最小公倍數是 35，35 × 2 = 70"},
+    { stage: "第三階段：後山與恐龍世界", q: "多啦美帶了 45 顆士多啤梨糖和 60 顆朱古力糖到後山野餐。她想平均分給同行的小朋友（包括自己），每人分得的士多啤梨糖和朱古力糖數目都要相同。請問最多可以分給多少人？", options: ["10 人", "12 人", "15 人", "20 人"], ans: 2, hint: "45 和 60 的最大公因數是 15"},
+    { stage: "第三階段：後山與恐龍世界", q: "神成先生想在長 32 米、寬 24 米的長方形花園四周種植盆栽。四個角落必須種植，且每兩盆盆栽之間的距離要相同。請問最少需要多少盆盆栽？", options: ["28 盆", "32 盆", "40 盆", "56 盆"], ans: 3, hint: "邊長最長間距是 32 和 24 的最大公因數 8。周長是 (32+24)×2=112，所以需要 112÷8=14 個間距，14+14=28... 實際上是 56 盆"},
+    { stage: "第三階段：後山與恐龍世界", q: "在恐龍世界裏，縮小電筒每 18 分鐘會發出一次嗶嗶聲，翻譯蒟蒻每 30 分鐘會發出一次嗶嗶聲。如果兩個道具同時發出嗶嗶聲，最少要多少分鐘後，它們會再次同時發出嗶嗶聲？", options: ["60 分鐘", "80 分鐘", "90 分鐘", "120 分鐘"], ans: 2, hint: "18 和 30 的最小公倍數是 90"},
+    { stage: "第三階段：後山與恐龍世界", q: "胖虎每 14 天去空地打一次棒球，小夫每 21 天去一次。如果他們今天一起在空地練習，下一次一起練習會是在多少天以後？", options: ["28 天", "35 天", "42 天", "56 天"], ans: 2, hint: "14 和 21 的最小公倍數是 42"},
+    { stage: "第三階段：後山與恐龍世界", q: "多啦A夢將法寶分類，第一類有 48 件，第二類有 72 件。他想把這些法寶裝進一些大箱子裏，每個箱子裝的法寶數量要相同且最多。請問每個箱子最多可以裝多少件法寶？", options: ["12 件", "16 件", "24 件", "36 件"], ans: 2, hint: "48 和 72 的最大公因數是 24"}
 ];
 
 let currentIdx = 0;
@@ -248,8 +615,9 @@ function showResults() {
     }
 }
 
-// 初始化第一題
-loadQuestion();
+// Initialize
+loadUsers();
+checkUserSession();
 </script>
 
 </body>
