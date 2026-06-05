@@ -29,6 +29,28 @@
             text-shadow: 1px 1px 2px #fff;
         }
         
+        /* Music Control Styles */
+        .music-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00a0e9;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        .music-control:hover {
+            background: #0087c4;
+            transform: scale(1.1);
+        }
+        
         /* Login/Registration Styles */
         .auth-container {
             display: flex;
@@ -252,6 +274,14 @@
 </head>
 <body>
 
+<!-- Background Music -->
+<audio id="background-music" loop style="display: none;">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Music Control Button -->
+<button class="music-control" id="music-btn" onclick="toggleMusic()" title="音樂開/關">🔊</button>
+
 <div class="game-container">
     <h1>🐱 多啦A夢 HCF & LCM 大冒險 👑</h1>
     
@@ -335,6 +365,42 @@
 </div>
 
 <script>
+// ============ Music System ============
+let isMusicPlaying = false;
+const backgroundMusic = document.getElementById('background-music');
+
+function toggleMusic() {
+    const musicBtn = document.getElementById('music-btn');
+    
+    if (isMusicPlaying) {
+        backgroundMusic.pause();
+        isMusicPlaying = false;
+        musicBtn.textContent = '🔇';
+        musicBtn.title = '音樂已關閉';
+        localStorage.setItem('musicEnabled', 'false');
+    } else {
+        // Set volume to reasonable level
+        backgroundMusic.volume = 0.3;
+        backgroundMusic.play().catch(err => {
+            console.log('音樂播放失敗，可能因為瀏覽器限制:', err);
+        });
+        isMusicPlaying = true;
+        musicBtn.textContent = '🔊';
+        musicBtn.title = '音樂已開啟';
+        localStorage.setItem('musicEnabled', 'true');
+    }
+}
+
+function initializeMusic() {
+    // Check if music was previously enabled
+    const musicEnabled = localStorage.getItem('musicEnabled');
+    if (musicEnabled === 'true') {
+        setTimeout(() => {
+            toggleMusic();
+        }, 500);
+    }
+}
+
 // ============ Authentication System ============
 let users = {};
 let currentUser = null;
@@ -493,6 +559,10 @@ function startGame() {
     document.getElementById('auth-area').classList.add('hidden');
     document.getElementById('game-area').classList.add('active');
     document.getElementById('current-username').innerText = currentUser.username;
+    // Start music when game starts
+    if (!isMusicPlaying && localStorage.getItem('musicEnabled') === 'true') {
+        toggleMusic();
+    }
     loadQuestion();
 }
 
@@ -618,6 +688,7 @@ function showResults() {
 // Initialize
 loadUsers();
 checkUserSession();
+initializeMusic();
 </script>
 
 </body>
