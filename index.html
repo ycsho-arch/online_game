@@ -472,15 +472,44 @@
 
 <script>
 // ============ Video Modal System ============
+let videoAutoCloseTimer = null;
+
 function openVideoModal() {
     const videoModal = document.getElementById('video-modal');
     videoModal.classList.add('active');
     const videoPlayer = document.getElementById('video-player');
     
-    // Auto-close modal when video ends
+    // Clear any existing timer
+    if (videoAutoCloseTimer) {
+        clearTimeout(videoAutoCloseTimer);
+    }
+    
+    // Add onended listener
     videoPlayer.onended = function() {
         closeVideoModal();
     };
+    
+    // Add ontimeupdate to detect if video is playing
+    videoPlayer.ontimeupdate = function() {
+        // When duration is available and we're near the end
+        if (videoPlayer.duration && videoPlayer.currentTime >= videoPlayer.duration - 0.5) {
+            if (videoAutoCloseTimer) clearTimeout(videoAutoCloseTimer);
+            // Close after a short delay to ensure video completes
+            videoAutoCloseTimer = setTimeout(() => {
+                closeVideoModal();
+            }, 500);
+        }
+    };
+    
+    // Fallback timeout - close after 30 seconds max (adjust if your video is longer)
+    if (videoAutoCloseTimer) {
+        clearTimeout(videoAutoCloseTimer);
+    }
+    videoAutoCloseTimer = setTimeout(() => {
+        if (videoModal.classList.contains('active')) {
+            closeVideoModal();
+        }
+    }, 32000); // 32 seconds fallback
     
     videoPlayer.play();
 }
@@ -491,7 +520,14 @@ function closeVideoModal() {
     const videoPlayer = document.getElementById('video-player');
     videoPlayer.pause();
     videoPlayer.currentTime = 0;
-    videoPlayer.onended = null; // Remove the event listener
+    videoPlayer.onended = null;
+    videoPlayer.ontimeupdate = null;
+    
+    // Clear timer
+    if (videoAutoCloseTimer) {
+        clearTimeout(videoAutoCloseTimer);
+        videoAutoCloseTimer = null;
+    }
 }
 
 // Close modal when clicking outside the content
