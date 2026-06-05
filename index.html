@@ -65,6 +65,83 @@
             display: none;
         }
         
+        /* Video Modal Styles */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        
+        .video-modal.active {
+            display: flex;
+        }
+        
+        .video-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .video-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2001;
+        }
+        
+        .video-modal-close:hover {
+            background: #d32f2f;
+            transform: scale(1.1);
+        }
+        
+        .video-frame {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .video-title {
+            color: #ff5252;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
         /* Login/Registration Styles */
         .auth-container {
             display: flex;
@@ -298,6 +375,19 @@
 <button class="music-control" id="music-btn" onclick="toggleMusic()" title="🔊 點擊開啟/關閉音樂">🔊</button>
 <div class="music-tooltip" id="music-tooltip"></div>
 
+<!-- Video Modal -->
+<div class="video-modal" id="video-modal">
+    <div class="video-modal-content">
+        <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+        <div class="video-title">🎬 大雄為你加油！</div>
+        <iframe 
+            class="video-frame"
+            src="https://drive.google.com/file/d/1F16yQZiz5bR1BePOxss2jybF7C0ikPzu/preview" 
+            allow="autoplay">
+        </iframe>
+    </div>
+</div>
+
 <div class="game-container">
     <h1>🐱 多啦A夢 HCF & LCM 大冒險 👑</h1>
     
@@ -381,6 +471,24 @@
 </div>
 
 <script>
+// ============ Video Modal System ============
+function openVideoModal() {
+    const videoModal = document.getElementById('video-modal');
+    videoModal.classList.add('active');
+}
+
+function closeVideoModal() {
+    const videoModal = document.getElementById('video-modal');
+    videoModal.classList.remove('active');
+}
+
+// Close modal when clicking outside the content
+document.getElementById('video-modal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeVideoModal();
+    }
+});
+
 // ============ Music System ============
 let isMusicPlaying = false;
 const backgroundMusic = document.getElementById('background-music');
@@ -699,6 +807,11 @@ function checkAnswer(selectedIdx) {
         buttons[selectedIdx].style.borderColor = '#f44336';
         buttons[qData.ans].style.background = '#c8e6c9'; // 顯示正解
         playSound("咚波！大雄跌倒了");
+        
+        // Open video modal after a short delay
+        setTimeout(() => {
+            openVideoModal();
+        }, 1000);
     }
     
     document.getElementById('next-button').style.display = 'block';
